@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isMemberOfAgency(agencyId) {
+      return isAuthenticated() && (
+        getUserData().agencyId == agencyId ||
+        request.auth.token.agencyId == agencyId
+      );
+    }
+
+    function isAgencyCeo(agencyId) {
+      return isAuthenticated() && (
+        (getUserData().agencyId == agencyId && getUserData().role == 'ceo') ||
+        (get(/databases/$(database)/documents/agencies/$(agencyId)).data.ownerId == request.auth.uid)
+      );
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isUser(userId) || (isAuthenticated() && isAgencyCeo(resource.data.agencyId));
+      allow delete: if isAuthenticated() && isAgencyCeo(resource.data.agencyId);
+    }
+
+    // Agencies Collection
+    match /agencies/{agencyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAgencyCeo(agencyId);
+      allow delete: if isAgencyCeo(agencyId);
+
+      // Subcollection: Members (Strictly: SO O CEO PODE COLOCAR FUNCIONARIO)
+      match /members/{memberId} {
+        allow read: if isMemberOfAgency(agencyId);
+        allow create, update, delete: if isAgencyCeo(agencyId);
+      }
+
+      // Subcollection: Tasks (Kanban)
+      match /tasks/{taskId} {
+        allow read, write: if isMemberOfAgency(agencyId);
+      }
+
+      // Subcollection: Leads (CRM)
+      match /leads/{leadId} {
+        allow read, write: if isMemberOfAgency(agencyId);
+      }
+
+      // Subcollection: Invoices
+      match /invoices/{invoiceId} {
+        allow read, write: if isMemberOfAgency(agencyId);
+      }
+
+      // Subcollection: DRE Financial items
+      match /dre/{itemId} {
+        allow read, write: if isMemberOfAgency(agencyId);
+      }
+
+      // Subcollection: Traffic Campaigns
+      match /campaigns/{campaignId} {
+        allow read, write: if isMemberOfAgency(agencyId);
+      }
+
+      // Subcollection: Audit Logs
+      match /logs/{logId} {
+        allow read: if isMemberOfAgency(agencyId);
+        allow create: if isAuthenticated();
+        allow update, delete: if false; // Immutable audit trail
+      }
+    }
+  }
+}

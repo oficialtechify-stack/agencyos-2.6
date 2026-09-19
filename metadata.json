@@ -1,0 +1,6 @@
+{
+  "name": "AgencyOS",
+  "description": "Plataforma completa de gestão para agências de marketing com Projetos, CRM, Faturamento, DRE, Tráfego Pago, Multi-tenant e Autenticação Firebase com 2FA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "type": "object",
+      "description": "Perfil de usuário da plataforma AgencyOS",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["ceo", "traffic_manager", "designer", "sdr", "financial", "copywriter"] },
+        "agencyId": { "type": "string" },
+        "agencyName": { "type": "string" },
+        "twoFactorEnabled": { "type": "boolean" },
+        "permissions": { "type": "object" },
+        "createdAt": { "type": "string" },
+        "lastLogin": { "type": "string" }
+      },
+      "required": ["id", "email", "displayName", "role", "agencyId"]
+    },
+    "Agency": {
+      "title": "Agency",
+      "type": "object",
+      "description": "Agência de marketing (Tenant)",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "cnpjOrTaxId": { "type": "string" },
+        "plan": { "type": "string", "enum": ["starter", "professional", "enterprise"] },
+        "billingCycle": { "type": "string", "enum": ["monthly", "annual"] },
+        "mrr": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "trialing", "past_due"] },
+        "ownerId": { "type": "string" },
+        "trialEndsAt": { "type": "string" },
+        "encryptedVaultKey": { "type": "string" }
+      },
+      "required": ["id", "name", "plan", "status", "ownerId"]
+    },
+    "ProjectTask": {
+      "title": "ProjectTask",
+      "type": "object",
+      "description": "Entrega ou tarefa da esteira de criativos e marketing",
+      "properties": {
+        "id": { "type": "string" },
+        "agencyId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["backlog", "briefing", "design", "review", "done"] },
+        "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+        "assigneeName": { "type": "string" },
+        "channel": { "type": "string" },
+        "deliverablesCount": { "type": "number" },
+        "completedDeliverables": { "type": "number" },
+        "dueDate": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "agencyId", "clientName", "title", "status"]
+    },
+    "LeadCRM": {
+      "title": "LeadCRM",
+      "type": "object",
+      "description": "Oportunidade e lead do funil de vendas da agência",
+      "properties": {
+        "id": { "type": "string" },
+        "agencyId": { "type": "string" },
+        "companyName": { "type": "string" },
+        "contactName": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "stage": { "type": "string", "enum": ["lead", "qualified", "proposal", "negotiation", "won", "lost"] },
+        "dealValue": { "type": "number" },
+        "expectedMrr": { "type": "number" },
+        "source": { "type": "string" },
+        "assignedTo": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "agencyId", "companyName", "stage"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "type": "object",
+      "description": "Fatura de cobrança de honorários da agência",
+      "properties": {
+        "id": { "type": "string" },
+        "agencyId": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "clientName": { "type": "string" },
+        "amount": { "type": "number" },
+        "dueDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["paid", "pending", "overdue", "cancelled"] },
+        "description": { "type": "string" },
+        "pixCode": { "type": "string" }
+      },
+      "required": ["id", "agencyId", "clientName", "amount", "dueDate", "status"]
+    },
+    "TrafficCampaign": {
+      "title": "TrafficCampaign",
+      "type": "object",
+      "description": "Campanha de tráfego pago (Meta, Google ou TikTok)",
+      "properties": {
+        "id": { "type": "string" },
+        "agencyId": { "type": "string" },
+        "name": { "type": "string" },
+        "clientName": { "type": "string" },
+        "platform": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "paused", "learning"] },
+        "dailyBudget": { "type": "number" },
+        "spend": { "type": "number" },
+        "impressions": { "type": "number" },
+        "clicks": { "type": "number" },
+        "conversions": { "type": "number" }
+      },
+      "required": ["id", "agencyId", "name", "clientName", "platform", "status"]
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}
